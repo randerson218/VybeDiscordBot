@@ -1,4 +1,4 @@
-const ytdl = require('ytdl-core');
+const ytdl = require('ytdl-core-discord');
 const ytSearch = require('yt-search');
 
 //Global queue for your bot. Every server will have a key and value pair in this map. { guild.id, queue_constructor{} }
@@ -6,7 +6,7 @@ const queue = new Map();
 
 module.exports = {
     name: 'play',
-    aliases: ['p','skip', 'stop', 'leave'], //We are using aliases to run the skip and stop command follow this tutorial if lost: https://www.youtube.com/watch?v=QBUJ3cdofqc
+    aliases: ['p','skip', 'stop'], //We are using aliases to run the skip and stop command follow this tutorial if lost: https://www.youtube.com/watch?v=QBUJ3cdofqc
     cooldown: 0,
     description: 'Advanced music bot',
     async execute(client, message, cmd, args,Discord){
@@ -77,7 +77,7 @@ module.exports = {
         }
 
         else if(cmd === 'skip') skip_song(message, server_queue);
-        else if(cmd === 'stop' || cmd === 'leave') stop_song(message, server_queue);
+        else if(cmd === 'stop') stop_song(message, server_queue);
     }
     
 }
@@ -91,8 +91,8 @@ const video_player = async (guild, song) => {
         queue.delete(guild.id);
         return;
     }
-    const stream = ytdl(song.url, { filter: 'audioonly' });
-    song_queue.connection.play(stream, { seek: 0, volume: 0.5 })
+    //const stream = await ytdl(song.url, { type:'opus'});
+    song_queue.connection.play(await ytdl(song.url, {filter:'audioonly'}), { type:'opus'})
     .on('finish', () => {
         song_queue.songs.shift();
         video_player(guild, song_queue.songs[0]);
